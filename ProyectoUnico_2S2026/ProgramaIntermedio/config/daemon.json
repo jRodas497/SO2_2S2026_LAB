@@ -1,0 +1,22 @@
+{
+  "port": 8080,
+  "dashboard_dir": "../../Dashboard",
+  "blacklist_file": "blacklist.json",
+  "monitor_dir": "/tmp/monitor",
+  "log_file": "/var/log/so2monitor.log",
+  "pid_file": "/run/so2monitor.pid",
+  "pam_service": "so2-monitor",
+  "intervalo_metricas_s": 2,
+  "autoinicio": {
+    "monitoreo": true,
+    "procesos": true,
+    "archivos": false
+  },
+  "logwatch": [
+    {
+      "central": "/var/log/so2_central.log",
+      "palabra": "ERROR",
+      "rutas": ["/var/log/so2_app.log"]
+    }
+  ]
+}

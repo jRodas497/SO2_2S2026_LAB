@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>so2monitor · Práctica 4</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314b8a6'/%3E%3Cpath d='M6 17h5l3-8 4 15 3-7h5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>so2monitor <span class="muted">· Práctica 4</span></div>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#memoria">Memoria</a>
+      <a href="#eventos">Eventos de seguridad</a>
+      <a href="#procesos">Procesos</a>
+    </nav>
+    <div class="topbar-der">
+      <span id="conexion" class="conexion off" title="Conexión en tiempo real con el daemon"><span class="punto"></span><span id="conexion-txt">Conectando…</span></span>
+    </div>
+  </header>
+
+  <div class="layout una-columna">
+    <main class="principal">
+
+      <!-- 1 y 2: memoria -->
+      <section id="memoria" class="card">
+        <div class="card-cab"><h2>Memoria del sistema <small class="muted">(/proc/meminfo)</small></h2><span id="actualizado" class="muted"></span></div>
+        <div class="tiles">
+          <div class="tile"><span class="tile-et">Memoria usada</span><strong id="t-mem">–</strong><small id="t-mem-sub"></small></div>
+          <div class="tile"><span class="tile-et">Memoria libre</span><strong id="t-libre">–</strong><small id="t-cache-sub"></small></div>
+          <div class="tile"><span class="tile-et">Swap usada</span><strong id="t-swap">–</strong><small id="t-swap-sub"></small></div>
+          <div class="tile"><span class="tile-et">Procesos</span><strong id="t-proc">–</strong><small id="t-proc-sub"></small></div>
+        </div>
+        <div class="graficas">
+          <figure class="grafica"><figcaption>Desglose de uso de memoria (usada, libre, caché)</figcaption><div class="lienzo"><canvas id="g-pie"></canvas></div></figure>
+          <figure class="grafica"><figcaption>Evolución en el tiempo: memoria física vs. swap (MB)</figcaption><div class="lienzo"><canvas id="g-lineas"></canvas></div></figure>
+        </div>
+      </section>
+
+      <!-- 4: eventos de seguridad -->
+      <section id="eventos" class="card">
+        <div class="card-cab">
+          <h2>Eventos de seguridad <span id="eventos-n" class="contador">0</span></h2>
+          <span class="pastilla" title="El daemon duerme en sys_ipc_channel_receive y despierta solo cuando log_watch detecta la palabra clave">Dirigido por eventos (IPC)</span>
+        </div>
+        <div class="tabla-caja tabla-eventos">
+          <table>
+            <thead><tr><th>Fecha y hora</th><th>Archivo de origen</th><th>Palabra detectada</th><th>Contenido</th></tr></thead>
+            <tbody id="tb-eventos"></tbody>
+          </table>
+        </div>
+        <p class="nota">Cada fila llega por Server-Sent Events en el instante en que el kernel notifica; la página no consulta ni se refresca.</p>
+      </section>
+
+      <!-- 3 y 5: procesos -->
+      <section id="procesos" class="card">
+        <div class="card-cab"><h2>Procesos activos</h2><span id="proc-cuenta" class="muted"></span></div>
+        <form id="form-pid" class="barra">
+          <label for="pid-input" class="muted">Consultar un proceso por PID</label>
+          <input id="pid-input" type="number" min="1" placeholder="PID" required>
+          <button class="btn btn-primario" type="submit">Consultar</button>
+          <input id="filtro" class="buscador" type="text" placeholder="Filtrar la tabla por nombre o PID…" aria-label="Filtrar procesos" spellcheck="false">
+        </form>
+        <div id="info-pid" class="info-pid" hidden></div>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th class="num">PID</th><th>Nombre</th><th>Estado</th><th class="num">Memoria (RSS)</th></tr></thead>
+            <tbody id="tb-procesos"></tbody>
+          </table>
+        </div>
+        <p id="fuente" class="nota"></p>
+      </section>
+    </main>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script src="/vendor/chart.umd.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

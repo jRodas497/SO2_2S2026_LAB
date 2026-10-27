@@ -1,0 +1,26 @@
+{
+  "Simulated.Adware.Popup": {
+    "hash": "470EED5B6F546E420020E5B6E0BC2813022334EEF3C0ED4794FE030EB7822ADB",
+    "descripcion": "Simulated threat: Simulated.Adware.Popup"
+  },
+  "Simulated.Keylogger.Basic": {
+    "hash": "97C80B057D5269C455D2363487A098278DF094AD6D6A5CA89F1BDE049B7B8B7D",
+    "descripcion": "Simulated threat: Simulated.Keylogger.Basic"
+  },
+  "Simulated.Ransomware.Encryptor": {
+    "hash": "E29A876B913759BC5EBF8EEDCE53E77F22138C53C027D6D89D6208C644240FEC",
+    "descripcion": "Simulated threat: Simulated.Ransomware.Encryptor"
+  },
+  "Simulated.Spyware.Tracker": {
+    "hash": "3B42566A98248E1644FA88F046117B1F9C8EB8BF02C78B11AE8C88193D366219",
+    "descripcion": "Simulated threat: Simulated.Spyware.Tracker"
+  },
+  "Simulated.Backdoor.Listener": {
+    "hash": "BAA023F86CFFEFB2C3B21521CF59A72B7EDC093484FB532C46C705426F8D661C",
+    "descripcion": "Simulated threat: Simulated.Backdoor.Listener"
+  },
+  "Simulated.Worm.Spreader": {
+    "hash": "CF3D33E41A47DC0D22E8BEE1E276161C1CCA46D31527F310D12306D3BB378F50",
+    "descripcion": "Simulated threat: Simulated.Worm.Spreader"
+  }
+}

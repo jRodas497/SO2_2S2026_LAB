@@ -1,0 +1,10 @@
+# Fuera del repositorio (otro repositorio / notas personales)
+/mapa/
+/GUIA_MAESTRA_SO2_PRACTICAS_1_A_4_202200389.md
+/ProyectoUnico_2S2026_Transcripcion_Completa.md
+
+# Artefactos generados
+build/
+workspace/
+*.o
+*.part

@@ -1,0 +1,5 @@
+ProgramaIntermedio/ebpf/vmlinux.h
+ProgramaIntermedio/ebpf/*.o
+ProgramaIntermedio/ebpf/sensor.skel.h
+ProgramaIntermedio/ebpf/test_sensor
+workspace/

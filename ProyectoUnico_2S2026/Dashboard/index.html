@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>so2monitor · Monitoreo y seguridad</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314b8a6'/%3E%3Cpath d='M6 17h5l3-8 4 15 3-7h5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-rol="">
+
+<!-- ============ Login ============ -->
+<section id="vista-login" class="login" hidden>
+  <form id="form-login" class="login-card" autocomplete="on">
+    <div class="brand brand-grande"><span class="logo" aria-hidden="true"></span>so2monitor</div>
+    <p class="muted">Sistema Integral de Monitoreo y Seguridad del Sistema Operativo</p>
+    <p id="login-msg" class="login-msg" role="alert" hidden></p>
+    <label for="login-usuario">Usuario</label>
+    <input id="login-usuario" name="usuario" type="text" autocomplete="username" required autofocus>
+    <label for="login-password">Contraseña</label>
+    <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+    <button id="btn-login" class="btn btn-primario" type="submit">Iniciar sesión</button>
+    <p class="muted pequeno">Se autentica contra las cuentas del sistema (PAM). Debe pertenecer al grupo <code>admin_user</code> o <code>common_user</code>.</p>
+  </form>
+</section>
+
+<!-- ============ Aplicación ============ -->
+<div id="vista-app" hidden>
+  <header class="topbar">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>so2monitor</div>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#metricas">Métricas</a>
+      <a href="#procesos">Procesos</a>
+      <a href="#archivos">Archivos</a>
+      <a href="#amenazas">Amenazas</a>
+      <a href="#logwatch">Logs</a>
+      <a href="#alertas" class="nav-alertas">Alertas</a>
+    </nav>
+    <div class="topbar-der">
+      <span id="conexion" class="conexion off" title="Conexión en tiempo real"><span class="punto"></span><span id="conexion-txt">Desconectado</span></span>
+      <span id="usuario-actual" class="usuario"></span>
+      <span id="rol-badge" class="badge"></span>
+      <button id="btn-salir" class="btn btn-sutil" type="button">Salir</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main class="principal">
+
+      <!-- ---------- Métricas ---------- -->
+      <section id="metricas" class="card">
+        <div class="card-cab">
+          <h2>Métricas del sistema</h2>
+          <label class="interruptor solo-admin" title="Activar o desactivar la lectura de /proc/meminfo y /proc/vmstat">
+            <input id="sw-monitoreo" type="checkbox"><span class="pista"></span><span>Monitoreo activo</span>
+          </label>
+        </div>
+        <p id="aviso-monitoreo" class="aviso" hidden>El monitoreo está desactivado: los datos no se actualizan.</p>
+        <div class="tiles">
+          <div class="tile"><span class="tile-et">Memoria usada</span><strong id="t-mem">–</strong><small id="t-mem-sub"></small></div>
+          <div class="tile"><span class="tile-et">Swap usada</span><strong id="t-swap">–</strong><small id="t-swap-sub"></small></div>
+          <div class="tile"><span class="tile-et">Procesos</span><strong id="t-proc">–</strong><small id="t-proc-sub"></small></div>
+          <div class="tile"><span class="tile-et">Amenazas detectadas</span><strong id="t-amen">0</strong><small id="t-amen-sub"></small></div>
+        </div>
+        <div class="graficas">
+          <figure class="grafica"><figcaption>Páginas activas vs. inactivas</figcaption><div class="lienzo"><canvas id="g-paginas"></canvas></div></figure>
+          <figure class="grafica"><figcaption>Memoria libre, caché y utilizada</figcaption><div class="lienzo"><canvas id="g-distribucion"></canvas></div></figure>
+          <figure class="grafica ancha"><figcaption>Uso de memoria y swap en el tiempo (MB)</figcaption><div class="lienzo"><canvas id="g-tiempo"></canvas></div></figure>
+          <figure class="grafica ancha"><figcaption>Fallos de página por intervalo: menores (pgfault) vs. mayores (pgmajfault)</figcaption><div class="lienzo"><canvas id="g-fallos"></canvas></div></figure>
+        </div>
+      </section>
+
+      <!-- ---------- Procesos ---------- -->
+      <section id="procesos" class="card">
+        <div class="card-cab">
+          <h2>Procesos con mayor consumo de memoria <small class="muted">(top 20)</small></h2>
+          <label class="interruptor solo-admin" title="Activar o desactivar el escaneo periódico de procesos (sys_get_processes_state)">
+            <input id="sw-procesos" type="checkbox"><span class="pista"></span><span>Escaneo de procesos</span>
+          </label>
+        </div>
+        <form id="form-pid" class="barra solo-admin">
+          <label for="pid-input" class="muted">Información de un proceso por PID</label>
+          <input id="pid-input" type="number" min="1" placeholder="PID" required>
+          <button class="btn" type="submit">Consultar</button>
+        </form>
+        <div id="info-pid" class="info-pid solo-admin" hidden></div>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th>PID</th><th>Nombre</th><th>Estado</th><th class="num">Memoria</th><th class="num">RSS</th><th class="solo-admin">Acción</th></tr></thead>
+            <tbody id="tb-procesos"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Archivos ---------- -->
+      <section id="archivos" class="card">
+        <div class="card-cab">
+          <h2>Archivos analizados</h2>
+          <label class="interruptor solo-admin" title="Activar = attach del sensor eBPF; desactivar = detach">
+            <input id="sw-archivos" type="checkbox"><span class="pista"></span><span>Escaneo de archivos (eBPF)</span>
+          </label>
+        </div>
+        <form id="form-ruta" class="barra solo-admin">
+          <label for="ruta-input" class="muted">Ruta a monitorear</label>
+          <input id="ruta-input" type="text" placeholder="/ruta/absoluta" required spellcheck="false">
+          <button class="btn" type="submit">Aplicar</button>
+          <button id="btn-ver-cuarentena" class="btn btn-sutil" type="button">Ver cuarentena</button>
+        </form>
+        <p id="aviso-sensor" class="aviso" hidden>El sensor eBPF no está disponible en este equipo.</p>
+        <div id="caja-cuarentena" class="subpanel solo-admin" hidden>
+          <h3>Archivos en cuarentena</h3>
+          <div class="tabla-caja"><table><thead><tr><th>Archivo</th><th>Amenaza</th><th>SHA-256</th></tr></thead><tbody id="tb-cuarentena"></tbody></table></div>
+        </div>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th>Archivo</th><th>Estado</th><th>Última modificación</th><th>Amenaza</th><th class="solo-admin">Acción</th></tr></thead>
+            <tbody id="tb-archivos"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Amenazas ---------- -->
+      <section id="amenazas" class="card">
+        <div class="card-cab">
+          <h2>Amenazas detectadas</h2>
+          <span class="muted" id="firmas-info"></span>
+        </div>
+        <form id="form-blacklist" class="barra solo-admin">
+          <label for="bl-archivo" class="muted">Actualizar base de hashes malignos (JSON)</label>
+          <input id="bl-archivo" type="file" accept=".json,application/json" required>
+          <button class="btn" type="submit">Subir y reemplazar</button>
+        </form>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th>Amenaza (firma)</th><th>Archivo afectado</th><th>Descripción</th><th>Fecha</th></tr></thead>
+            <tbody id="tb-amenazas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Logwatch ---------- -->
+      <section id="logwatch" class="card">
+        <div class="card-cab"><h2>Análisis de palabras clave en logs</h2></div>
+        <form id="form-logwatch" class="grid-form solo-admin">
+          <div><label for="lw-central">Log central</label><input id="lw-central" type="text" placeholder="/var/log/central.log" required spellcheck="false"></div>
+          <div><label for="lw-palabra">Palabra clave</label><input id="lw-palabra" type="text" placeholder="ERROR" required maxlength="63"></div>
+          <div class="ancho"><label for="lw-rutas">Archivos a analizar (uno por línea, máximo 8)</label><textarea id="lw-rutas" rows="3" placeholder="/var/log/app.log" required spellcheck="false"></textarea></div>
+          <div class="ancho"><button class="btn btn-primario" type="submit">Crear monitoreo</button></div>
+        </form>
+        <h3>Monitoreos activos</h3>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th>ID</th><th>Palabra</th><th>Log central</th><th>Archivos</th><th>Iniciado</th><th class="solo-admin">Acción</th></tr></thead>
+            <tbody id="tb-logwatch"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- ---------- Alertas ---------- -->
+    <aside id="alertas" class="alertas" aria-label="Alertas de seguridad">
+      <div class="alertas-cab">
+        <h2>Alertas <span id="alertas-n" class="contador">0</span></h2>
+        <div class="filtros" role="group" aria-label="Filtrar por severidad">
+          <button class="chip activo" data-sev="">Todas</button>
+          <button class="chip sev-high" data-sev="HIGH">HIGH</button>
+          <button class="chip sev-medium" data-sev="MEDIUM">MEDIUM</button>
+          <button class="chip sev-low" data-sev="LOW">LOW</button>
+        </div>
+      </div>
+      <ol id="lista-alertas" class="lista-alertas" aria-live="polite"></ol>
+    </aside>
+  </div>
+</div>
+
+<dialog id="dlg">
+  <form method="dialog" class="dlg-caja">
+    <h3 id="dlg-titulo"></h3>
+    <p id="dlg-msg"></p>
+    <div class="dlg-acc">
+      <button class="btn btn-sutil" value="cancel">Cancelar</button>
+      <button id="dlg-ok" class="btn btn-peligro" value="ok">Confirmar</button>
+    </div>
+  </form>
+</dialog>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="/vendor/chart.umd.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
