@@ -2,6 +2,8 @@
 
 Sistemas Operativos 2 · Carné 202200389 · Linux 6.12.69
 
+**Kernel compilado:** `6.12.69-202200389-so2-final` · **Syscalls:** 548–553 · **Pruebas:** 58 de 58 en la VM
+
 Plataforma de monitoreo y seguridad a nivel kernel: syscalls reutilizadas de las prácticas 2–4, un sensor **eBPF** que
 intercepta la escritura de archivos, un **daemon en C** (3 hilos) que calcula SHA-256, compara contra una blacklist,
 aísla archivos y genera alertas LOW/MEDIUM/HIGH, autenticación con **PAM** (roles `admin_user` / `common_user`) y un
